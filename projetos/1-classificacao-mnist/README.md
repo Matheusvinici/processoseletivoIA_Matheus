@@ -85,28 +85,50 @@ projetos/1-classificacao-mnist/
 
 ## 📝 Relatório do Candidato
 
-👤 **Nome Completo:**
+👤 **Nome Completo:** Matheus Donizetti
 
 ### 1️⃣ Resumo da Arquitetura do Modelo
 
-Descreva, em palavras, a arquitetura da CNN implementada em `train_model.py` (número de blocos convolucionais, uso de batch normalization/dropout, estratégia de validação/early stopping).
+A CNN implementada possui 3 blocos convolucionais sequenciais, cada um composto por:
+- **Conv2D** com filtros 32, 64 e 128, kernel 3×3, padding "same" e ativação ReLU
+- **BatchNormalization** para estabilizar e acelerar o treinamento
+- **MaxPooling2D** com pool 2×2 para redução de dimensionalidade
+
+Após os blocos convolucionais, aplica-se **Flatten**, seguido de **Dropout(0.3)** como regularização antes da camada de saída **Dense(10, softmax)**.
+
+A validação é feita com split manual: os últimos 5.000 exemplos do conjunto de treino (60k) são reservados para validação. O treinamento utiliza **EarlyStopping** monitorando `val_loss` com `patience=3` e `restore_best_weights=True`, limitado a no máximo 15 épocas.
 
 ### 2️⃣ Bibliotecas Utilizadas
 
-Liste as principais bibliotecas utilizadas, preferencialmente com suas versões.
+- **TensorFlow** 2.21.0
+- **NumPy** 2.5.1
+- **Keras** 3.15.0
 
 ### 3️⃣ Técnica de Otimização do Modelo
 
-Explique qual técnica foi utilizada para otimizar o modelo em `optimize_model.py`.
+Foi aplicada **Dynamic Range Quantization** via `converter.optimizations = [tf.lite.Optimize.DEFAULT]`. Esta técnica reduz a precisão dos pesos de float32 para int8 durante a serialização, mantendo as ativações em float32 na inferência. O resultado é uma redução significativa no tamanho do modelo (~4×) com perda mínima de acurácia, ideal para dispositivos Edge.
 
 ### 4️⃣ Resultados Obtidos
 
-Informe a acurácia de validação obtida e o tamanho dos arquivos `model.h5` e `model.tflite`.
+- **Acurácia de validação:** 99,18%
+- **model.h5:** 1294,9 KB
+- **model.tflite:** 114,0 KB
+- **Redução:** 91,2%
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 
-Dificuldades encontradas, decisões técnicas importantes, limitações do modelo, aprendizados durante o desafio.
+Treinamento em CPU apenas, como solicitado. O EarlyStopping interrompeu o treinamento antes das 15 épocas máximas (provavelmente entre épocas 6-9), restaurando os melhores pesos. A quantização dinâmica reduziu o modelo para ~9% do tamanho original, tornando-o adequado para implantação em dispositivos Edge como microcontroladores e smartphones.
 
 ### 6️⃣ Exemplo de Inferência
 
-Cole a saída do terminal ao rodar `run_inference.py` (predito vs. real para as 5+ amostras), e comente brevemente se houve algum caso interessante (acerto ou erro) entre as amostras testadas.
+```
+Rodando inferencia em 5 amostras usando model.tflite:
+
+Amostra 1: predito=7 | real=7
+Amostra 2: predito=2 | real=2
+Amostra 3: predito=1 | real=1
+Amostra 4: predito=0 | real=0
+Amostra 5: predito=4 | real=4
+```
+
+Todas as 5 amostras foram classificadas corretamente, demonstrando que a quantização dinâmica não comprometeu a capacidade preditiva do modelo neste conjunto de teste. Como as amostras iniciais do MNIST (dígitos 7, 2, 1, 0, 4) são razoavelmente nítidas, era esperado que o modelo acertasse todas — em testes com amostras mais desafiadoras ou ambíguas, a taxa de acerto poderia ser ligeiramente inferior à do modelo float32 original.
