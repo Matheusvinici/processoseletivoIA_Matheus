@@ -85,7 +85,7 @@ projetos/1-classificacao-mnist/
 
 ## 📝 Relatório do Candidato
 
-👤 **Nome Completo:** Matheus Donizetti
+👤 **Nome Completo:** Matheus Vinicius Vidal de Andrade
 
 ### 1️⃣ Resumo da Arquitetura do Modelo
 
