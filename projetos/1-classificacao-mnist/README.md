@@ -111,9 +111,9 @@ Foi aplicada **Dynamic Range Quantization** via `converter.optimizations = [tf.l
 ### 4️⃣ Resultados Obtidos
 
 - **Acurácia de validação:** 99,18%
-- **model.h5:** 1294,9 KB
+- **model.h5:** 447,9 KB
 - **model.tflite:** 114,0 KB
-- **Redução:** 91,2%
+- **Redução:** 74,5%
 
 ### 5️⃣ Comentários Adicionais (Opcional)
 

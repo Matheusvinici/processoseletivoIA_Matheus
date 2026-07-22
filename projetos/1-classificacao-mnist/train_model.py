@@ -1,3 +1,4 @@
+import warnings
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -56,3 +57,16 @@ print(f"\nValidacao final - acuracia: {val_acc:.4f}")
 
 model.save("model.h5")
 print("Modelo salvo como model.h5")
+
+try:
+    import tf_keras as tfk
+    model.save("model_tmp.keras")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy = tfk.models.load_model("model_tmp.keras")
+    legacy.save("model.h5")
+    import os
+    os.remove("model_tmp.keras")
+    print("Modelo convertido para formato Keras 2 (compativel com TF 2.12-2.15)")
+except ImportError:
+    pass
